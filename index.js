@@ -158,7 +158,7 @@ function execute(/*args*/) {
     if (is(results.returned, Error))
       reject(new AfterEffectsError(results.returned.message));
     else
-      resolve(results.returned);
+      resolve(JSON.parse(results.returned));
   }));
 }
 
@@ -181,7 +181,7 @@ function executeSync(/*args*/) {
   if (is(results.returned, Error))
     throw new AfterEffectsError(results.returned.message);
   else
-    return results.returned;
+    return JSON.parse(results.returned);
 }
 
 function create(funcOrCommand, scriptPath) {
