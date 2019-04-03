@@ -11,9 +11,11 @@ const os = 		  require('os'),
       uuid = 		require('uuid'),
       Command = require('./lib/command');
 
-/*******************************************************************/
-// SETUP
-/*******************************************************************/
+const Tail = require('tail').Tail;
+
+      /*******************************************************************/
+      // SETUP
+      /*******************************************************************/
 
 const options = {
 	errorHandling: true,
@@ -56,6 +58,22 @@ class AfterEffectsError extends Error {
     super(message);
     this.name = 'AfterEffectsError';
   }
+}
+
+function tailLogToConsole() {
+  const homedir = os.homedir();
+  const tailOptions = {fromBeginning: true}
+  const tail = new Tail(path.join(homedir, ".ae_node_script", "after_effects-script.log"), tailOptions);
+  
+  tail.on("line", function(data) {
+    console.log(data);
+  });
+  
+  tail.on("error", function(error) {
+    console.log('ERROR: ', error);
+  });
+
+  return tail;
 }
 
 /*******************************************************************/
@@ -143,12 +161,14 @@ function execute(/*args*/) {
   const command = prepare_command(arguments);
   ensure_executable(command);
   create_result_file_name(command);
+  const tail = tailLogToConsole()
 
   return platform.execute(command)
   //Handle Results
   .then(() => new Promise((resolve,reject) => {
 
     const results = get_results(command);
+    tail.unwatch()
     if (results == null)
       resolve();
 
@@ -167,9 +187,11 @@ function executeSync(/*args*/) {
   const command = prepare_command(arguments);
   ensure_executable(command);
   create_result_file_name(command);
+  const tail = tailLogToConsole()
 
   platform.executeSync(command);
   const results = get_results(command);
+  tail.unwatch()
 
   //Handle results
   if (results == null)

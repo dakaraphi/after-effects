@@ -23,6 +23,7 @@
     "escape-string-applescript": "^2.0.0",
     "is-explicit": "^1.2.2",
     "uglify-js": "^2.6.2",
-    "uuid": "^2.0.1"
+    "uuid": "^2.0.1",
+    "tail": "2.0.2"
   }
 }
