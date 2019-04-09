@@ -118,7 +118,7 @@ function prepare_script_path(scriptPath, command) {
 }
 
 function create_result_file_name(command) {
-  command.result_file = `ae-result-${uuid.v4()}.js`;
+  command.result_file = `ae-result-${uuid.v4()}.json`;
 }
 
 function get_results(command) {
@@ -146,8 +146,8 @@ function get_results(command) {
     command.result_file = null;
     return err;
   }
-  if (is(results.logs, Array))
-    results.logs.forEach(log => process.stdout.write(`${log}\n`));
+  // if (is(results.logs, Array))
+  //   results.logs.forEach(log => process.stdout.write(`${log}\n`));
 
   return results;
 }
@@ -168,17 +168,11 @@ function execute(/*args*/) {
   .then(() => new Promise((resolve,reject) => {
 
     const results = get_results(command);
-    tail.unwatch()
+    //tail.unwatch()
     if (results == null)
       resolve();
-
-    if (is(results, Error))
-      reject(Errors.NoResult);
-
-    if (is(results.returned, Error))
-      reject(new AfterEffectsError(results.returned.message));
     else
-      resolve(JSON.parse(results.returned));
+      resolve(results);
   }));
 }
 
@@ -191,19 +185,13 @@ function executeSync(/*args*/) {
 
   platform.executeSync(command);
   const results = get_results(command);
-  tail.unwatch()
+  //tail.unwatch()
 
   //Handle results
   if (results == null)
     return;
 
-  if (is(results, Error))
-    throw new Error(Errors.NoResult);
-
-  if (is(results.returned, Error))
-    throw new AfterEffectsError(results.returned.message);
-  else
-    return JSON.parse(results.returned);
+  return results;
 }
 
 function create(funcOrCommand, scriptPath) {
