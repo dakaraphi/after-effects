@@ -85,7 +85,6 @@ ___
 The ae object has a couple of options:
 
 	ae.options.errorHandling = true;
-	ae.options.minify = false;
     ae.options.program = null;
 	ae.options.includes = [
 		'./node_modules/after-effects/lib/includes/console.jsx',
@@ -105,11 +104,6 @@ With errorHandling enabled, errors thrown in After Effects will be suppressed an
     .catch(err => console.log(err)); // contains error
 
 With errorHandling disabled, After Effects will create a popup and prevent further code execution until it is dealt with.
-
-### minify
-If true, the code will be minified before being sent to After Effects. This is disabled by default, which is different from previous versions of this package. I feel there's little point in spending the extra time to minify code that isn't going over a network. Still, you can set minify to true if you're into that sort of thing.
-
-    ae.options.minify = true;
 
 ### program
 By default, ae will look for an After Effects installation in your platforms default application directory. If you've installed it elsewhere, you'll have to set this to the custom app directory.
@@ -208,11 +202,6 @@ Commands, once made, can be executed with different arguments:
     //you get the idea
     create_composition.execute("Breast Milk");
 
-Commands have their own set of options. By default, they are the same as the options set on ae.options:
-
-    ae.options.minify = true;
-    var getNumItems = new ae.Command(() => app.project.numItems); //will minify
-
 Command options cannot be changed:
 
     ae.options.errorHandling = false;
@@ -221,10 +210,6 @@ Command options cannot be changed:
     ae.options.errorHandling = true;
     breakForFun.executeSync(); // will still alert inside in AE
     breakForFun.errorHandling = true; //throws error
-
-You can create commands with their own options:
-
-    var getProjectName = new ae.Command(()=> app.project.file.name, { includes: null, minify: true });
 ___
 ## Creating Scripts
 Rather than executing code, you can create scripts for use in After Effects:

@@ -19,7 +19,6 @@ const Tail = require('tail').Tail;
 
 const options = {
 	errorHandling: true,
-	minify: false,
   program: null,
   includes: [
 		path.join(__dirname, '/lib/includes/console.jsx'),
