@@ -168,7 +168,7 @@ function execute(/*args*/) {
   .then(() => new Promise((resolve,reject) => {
 
     const results = get_results(command);
-    //tail.unwatch()
+    closeLogWatcher(tail)
     if (results == null)
       resolve();
     else
@@ -185,7 +185,7 @@ function executeSync(/*args*/) {
 
   platform.executeSync(command);
   const results = get_results(command);
-  //tail.unwatch()
+  closeLogWatcher(tail)
 
   //Handle results
   if (results == null)
@@ -226,6 +226,10 @@ function createSync(funcOrCommand, scriptPath) {
 
   process.stdout.write(`Script written to ${scriptPath}\n`);
   return scriptPath;
+}
+
+function closeLogWatcher(tail) {
+  setTimeout(() => tail.unwatch(), 2000)
 }
 
 /*******************************************************************/
