@@ -22,6 +22,8 @@ const options = {
   program: null,
   includes: [
 		path.join(__dirname, '/lib/includes/es5-shim.jsx'),
+		path.join(__dirname, '/lib/includes/es6-shim.js'),
+		path.join(__dirname, '/lib/includes/json2.js'),
 		path.join(__dirname, '/lib/includes/ae-lib.js'),
 	]
 };
