@@ -146,8 +146,6 @@ function get_results(command) {
     command.result_file = null;
     return err;
   }
-  // if (is(results.logs, Array))
-  //   results.logs.forEach(log => process.stdout.write(`${log}\n`));
 
   return results;
 }
