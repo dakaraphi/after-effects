@@ -206,7 +206,7 @@ function create(funcOrCommand, scriptPath) {
       if (err)
         reject(err);
       else
-        process.stdout.write(`Script written to ${scriptPath}\n`);
+        console.log(`Script written to ${scriptPath}\n`);
         resolve(scriptPath);
     });
   });
@@ -222,7 +222,7 @@ function createSync(funcOrCommand, scriptPath) {
 
   fs.writeFileSync(scriptPath, command.toString(), 'utf-8');
 
-  process.stdout.write(`Script written to ${scriptPath}\n`);
+  console.log(`Script written to ${scriptPath}\n`);
   return scriptPath;
 }
 
