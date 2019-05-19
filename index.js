@@ -24,8 +24,8 @@ const options = {
 		path.join(__dirname, '/lib/includes/es5-shim.jsx'),
 		path.join(__dirname, '/lib/includes/es6-shim.js'),
 		path.join(__dirname, '/lib/includes/json2.js'),
-		path.join(__dirname, '/lib/includes/ae-lib.js'),
-	]
+    path.join(__dirname, '/lib/includes/ae-lib.js'),
+  	]
 };
 
 const platform = (() => {
@@ -62,6 +62,8 @@ class AfterEffectsError extends Error {
 
 function tailLogToConsole() {
   const homedir = os.homedir();
+  const logFile = path.join(homedir, ".ae_node_script", "after_effects-script.log")
+  fs.writeFileSync(logFile, '') // create or clear previous log
   const tailOptions = {fromBeginning: true}
   const tail = new Tail(path.join(homedir, ".ae_node_script", "after_effects-script.log"), tailOptions);
   
