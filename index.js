@@ -62,10 +62,11 @@ class AfterEffectsError extends Error {
 
 function tailLogToConsole() {
   const homedir = os.homedir();
-  const logFile = path.join(homedir, ".ae_node_script", "after_effects-script.log")
+  const logFile = path.join(process.cwd(), "after_effects-script.log")
+  console.log('creating log file: ' + logFile)
   fs.writeFileSync(logFile, '') // create or clear previous log
   const tailOptions = {fromBeginning: true}
-  const tail = new Tail(path.join(homedir, ".ae_node_script", "after_effects-script.log"), tailOptions);
+  const tail = new Tail(logFile, tailOptions);
   
   tail.on("line", function(data) {
     console.log(data);
