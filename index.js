@@ -9,7 +9,7 @@ const os = 		  require('os'),
       path =    require('path'),
       is =      require('is-explicit').default,
       uuid = 		require('uuid'),
-      Command = require('./lib/command');
+      Command = require('./lib/script-transform-generator');
 
 const Tail = require('tail').Tail;
 
@@ -31,12 +31,8 @@ const options = {
 const platform = (() => {
 
  const platform_name = os.platform();
- if (platform_name === 'darwin') //mac
-   return require('./lib/platform-mac');
-
- else if (platform_name.includes('win')) { //windows 32 or 64
-   return require('./lib/platform-win');
-
+ if (platform_name.includes('win')) { //windows 32 or 64
+   return require('./lib/process-execution.js');
  } else
    throw new Error(Errors.UnsupportedPlatform);
 
@@ -53,15 +49,7 @@ const Errors = {
   NoResult : 'Could not get results from After Effects. Ensure that Preferences > General > Allow Scripts to Write Files and Access Network is enabled.'
 };
 
-class AfterEffectsError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'AfterEffectsError';
-  }
-}
-
 function tailLogToConsole() {
-  const homedir = os.homedir();
   const logFile = path.join(process.cwd(), "after_effects-script.log")
   console.log('creating log file: ' + logFile)
   fs.writeFileSync(logFile, '') // create or clear previous log
@@ -103,11 +91,6 @@ function prepare_command(input_args) {
 
   return command;
 
-}
-
-function ensure_executable(command) {
-  if (!platform.canExecute(command))
-    throw new Error(Errors.ApplicationNotFound);
 }
 
 function prepare_script_path(scriptPath, command) {
@@ -160,7 +143,6 @@ function get_results(command) {
 function execute(/*args*/) {
 
   const command = prepare_command(arguments);
-  ensure_executable(command);
   create_result_file_name(command);
   const tail = tailLogToConsole()
 
@@ -180,7 +162,6 @@ function execute(/*args*/) {
 function executeSync(/*args*/) {
 
   const command = prepare_command(arguments);
-  ensure_executable(command);
   create_result_file_name(command);
   const tail = tailLogToConsole()
 
