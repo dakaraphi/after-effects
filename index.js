@@ -186,6 +186,7 @@ function executeSync(/*args*/) {
 
   platform.executeSync(command);
   const results = get_results(command);
+  attachLineInfoOnError(results, command.generatedScriptFile)
   closeLogWatcher(tail)
 
   //Handle results
@@ -231,6 +232,21 @@ function createSync(funcOrCommand, scriptPath) {
 
 function closeLogWatcher(tail) {
   setTimeout(() => tail.unwatch(), 2000)
+}
+
+function readLineOfFile(file, lineNumber) {
+  const lines = fs.readFileSync(file, 'utf-8').split(/\r?\n/);
+  let lineCount = 1
+  for (const line of lines) {
+    if (lineCount++ === lineNumber) return line
+  }
+  return null
+}
+
+function attachLineInfoOnError(results, file) {
+  if (!results || results.result !== 'ERROR') return
+  const lineText = readLineOfFile(file, results.line)
+  results.lineText = lineText;
 }
 
 /*******************************************************************/
