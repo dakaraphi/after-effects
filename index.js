@@ -1,21 +1,12 @@
 'use strict';
 
-/*******************************************************************/
-// DEPENDENCIES
-/*******************************************************************/
-
-const os = 		  require('os'),
-      fs =      require('fs'),
-      path =    require('path'),
-      is =      require('is-explicit').default,
-      uuid = 		require('uuid'),
-      Command = require('./lib/script-transform-generator');
+const os = 		  require('os');
+const fs =      require('fs');
+const path =    require('path');
+const uuid = 		require('uuid');
+const makeTransformGenerator = require('./lib/script-transform-generator').makeTransformGenerator;
 
 const Tail = require('tail').Tail;
-
-      /*******************************************************************/
-      // SETUP
-      /*******************************************************************/
 
 const options = {
 	errorHandling: true,
@@ -67,49 +58,11 @@ function tailLogToConsole() {
   return tail;
 }
 
-/*******************************************************************/
-// HELPER
-/*******************************************************************/
-
-function prepare_command(input_args) {
-
-  let command = null;
-  const args = Array.prototype.slice.call(input_args);
-  const funcOrCommand = args.shift();
-
-  if (is(funcOrCommand, Command))
-    command = funcOrCommand;
-
-  if (is(funcOrCommand, Function))
-    command = new Command(funcOrCommand);
-
-  if (!command)
-    throw new Error(Errors.BadExecuteArgument);
-
-  command.arguments = args;
-  command.result_file = null;
-
-  return command;
-
+function create_result_file_name() {
+  return `ae-result-${uuid.v4()}.json`;
 }
 
-function prepare_script_path(scriptPath, command) {
-  if (!path.isAbsolute(scriptPath))
-    scriptPath = path.resolve(platform.scriptsDir(command), scriptPath);
-
-  if (path.extname(scriptPath) === '')
-    scriptPath += '.jsx';
-
-  return scriptPath;
-}
-
-function create_result_file_name(command) {
-  command.result_file = `ae-result-${uuid.v4()}.json`;
-}
-
-function get_results(command) {
-  if (!is(command.result_file, String))
-    return;
+function get_results(resultFile) {
 
   let results = {};
 
@@ -118,7 +71,7 @@ function get_results(command) {
     //the operating systems temp folder is slightly different than os.tmpdir,
     //having a 'TemporaryItems' subfolder.
     const sub_temp_dir = os.platform() === 'darwin' ? 'TemporaryItems' : '';
-    const jsfile = path.join(os.tmpdir(), sub_temp_dir, command.result_file);
+    const jsfile = path.join(os.tmpdir(), sub_temp_dir, resultFile);
     results = require(jsfile);
 
     fs.unlink(jsfile, function(err) {
@@ -126,89 +79,40 @@ function get_results(command) {
         console.error (err)
     });
 
-    command.result_file = null;
   } catch (err) {
 
-    command.result_file = null;
     return err;
   }
 
   return results;
 }
 
-/*******************************************************************/
-// INTERFACE
-/*******************************************************************/
+function executeSync(afterEffectsFn, ...parameters) {
 
-function execute(/*args*/) {
-
-  const command = prepare_command(arguments);
-  create_result_file_name(command);
+  const resultFile = create_result_file_name();
   const tail = tailLogToConsole()
 
-  return platform.execute(command)
-  //Handle Results
-  .then(() => new Promise((resolve,reject) => {
+  const transformGenerator = makeTransformGenerator(afterEffectsFn, parameters, options, resultFile)
+  const scriptFile = path.join(process.cwd(),`after-effects-generated-script.js`);
+  const scriptContent = transformGenerator.makeSource();
+  const program_path = path.join(options.program, 'Support Files')
 
-    const results = get_results(command);
-    closeLogWatcher(tail)
-    if (results == null)
-      resolve();
-    else
-      resolve(results);
-  }));
-}
 
-function executeSync(/*args*/) {
+  console.log('After Effects Location: ' + program_path.toString())
+  try {
+    console.log('Created script for execution: ' + scriptFile)
+    fs.writeFileSync(scriptFile, scriptContent, 'utf-8');
+  } catch (err) {
+    throw Error('Could not create jsx script for execution. Check permissions.');
+  }
 
-  const command = prepare_command(arguments);
-  create_result_file_name(command);
-  const tail = tailLogToConsole()
+  platform.executeSync(scriptFile, program_path);
 
-  platform.executeSync(command);
-  const results = get_results(command);
-  attachLineInfoOnError(results, command.generatedScriptFile)
+  const results = get_results(resultFile);
+  attachLineInfoOnError(results, scriptFile)
   closeLogWatcher(tail)
 
-  //Handle results
-  if (results == null)
-    return;
-
   return results;
-}
-
-function create(funcOrCommand, scriptPath) {
-
-  //prepare command args shouldn't include scriptPath
-  const args = Array.prototype.slice.call(arguments, 2);
-  args.unshift(funcOrCommand);
-
-  const command = prepare_command(args);
-  scriptPath = prepare_script_path(scriptPath, command);
-
-  return new Promise((resolve, reject) => {
-    fs.writeFile(scriptPath, command.toString(), 'utf-8', (err) => {
-      if (err)
-        reject(err);
-      else
-        console.log(`Script written to ${scriptPath}\n`);
-        resolve(scriptPath);
-    });
-  });
-}
-
-function createSync(funcOrCommand, scriptPath) {
-  //prepare command args shouldn't include scriptPath
-  const args = Array.prototype.slice.call(arguments, 2);
-  args.unshift(funcOrCommand);
-
-  const command = prepare_command(args);
-  scriptPath = prepare_script_path(scriptPath, command);
-
-  fs.writeFileSync(scriptPath, command.toString(), 'utf-8');
-
-  console.log(`Script written to ${scriptPath}\n`);
-  return scriptPath;
 }
 
 function closeLogWatcher(tail) {
@@ -230,24 +134,10 @@ function attachLineInfoOnError(results, file) {
   results.lineText = lineText;
 }
 
-/*******************************************************************/
-// EXPORTS
-/*******************************************************************/
 
 module.exports = function() {
   return executeSync.apply(null, arguments);
 };
 
-module.exports.execute = execute;
 module.exports.executeSync = executeSync;
-module.exports.create = create;
-module.exports.createSync = createSync;
 module.exports.options = options;
-module.exports.Command = Command;
-
-Object.defineProperty(module.exports, 'scriptsDir', {
-  //Pass in dummy command so we have access to the currently set program option, if one exists
-  get: () => platform.scriptsDir({ options: { program: module.exports.options.program }})
-});
-Object.preventExtensions(module.exports);
-Object.preventExtensions(module.exports.options);
