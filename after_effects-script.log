@@ -1,0 +1,10 @@
+created logger: script logger
+info: begin after effects script execution
+info: importing assets from: /c/development/projects/snackbar/output
+info: creating layers
+info:   adding layer: aceu-poor_guy.mp4
+info:   adding layer: aceu-The_heal_glitch___perpetrator__Aceu.mp4
+info:   adding layer: AverageAden-LMAO_Pathfinder_HITBOX_RIP.mp4
+info: After Effects finished processing script
+info: script complete
+info: result file: C:\development\projects\after-effects\after-effects-script-results.json
