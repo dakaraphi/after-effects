@@ -1,8 +1,7 @@
-const ae = require('./index.js')
+const makeAfterEffectsInterface = require('./index.js').makeAfterEffectsInterface
 
 // These options will be passed to the after effects process and our function will receive them as a paramter to the function
 const options = {
-    "afterEffectsPath": "C:\\Program Files\\Adobe\\Adobe After Effects CC 2019",
     "assetFolder": "C:\\development\\projects\\snackbar\\output",
     "compositionMain": {
         "name": "render main",
@@ -11,8 +10,8 @@ const options = {
     },
 }
 
-ae.options.afterEffectsPath = options.afterEffectsPath
-const result = ae(optionsFromNode => {
+const aeInterface = makeAfterEffectsInterface({afterEffectsPath: 'C:\\Program Files\\Adobe\\Adobe After Effects CC 2019'})
+const result = aeInterface.executeFunctionInAfterEffects(optionsFromNode => {
     log.info('begin after effects script execution')
 
     const {options} = optionsFromNode
@@ -35,10 +34,9 @@ const result = ae(optionsFromNode => {
         if (layer.outPoint > options.compositionMain.videoLengthLimitSeconds) return true // don't add anymore beyond time limit
     })
 
-
     log.info('After Effects finished processing script')
     return videoEndTimes
 }, {options});
 
-
+// log list of video clip end times
 console.dir(result, {depth: null})

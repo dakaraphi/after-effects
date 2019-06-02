@@ -1,7 +1,7 @@
 {
-  "name": "after-effects",
-  "version": "1.0.0",
-  "description": "Send instructions to the After Effects scripting environment from node.js.",
+  "name": "after-effects-node",
+  "version": "0.0.1",
+  "description": "Define a function in Node, execute function within After Effects process and receive results in Node",
   "main": "index.js",
   "scripts": {},
   "keywords": [
@@ -10,7 +10,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/dakaraphi/after-effects"
+    "url": "https://github.com/dakaraphi/jslib-after-effects-node"
   },
   "author": "Chad Meadows",
   "license": "MIT",

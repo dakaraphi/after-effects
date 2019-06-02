@@ -7,7 +7,7 @@ const makeTransformGenerator = require('./lib/script-transform-generator').makeT
 
 const Tail = require('tail').Tail;
 
-const options = {
+let options = {
     afterEffectsPath: null,
     includes: [
         path.join(__dirname, '/lib/includes/es5-shim.jsx'),
@@ -18,7 +18,7 @@ const options = {
 };
 
 function tailLogToConsole() {
-    const logFile = path.join(process.cwd(), "after_effects-script.log")
+    const logFile = path.join(process.cwd(), "after-effects-script.log")
     console.log('creating log file: ' + logFile)
     fs.writeFileSync(logFile, '') // create or clear previous log
     const tailOptions = { fromBeginning: true }
@@ -35,7 +35,7 @@ function tailLogToConsole() {
     return tail;
 }
 
-function executeSync(afterEffectsFn, ...parameters) {
+function executeFunctionInAfterEffects(afterEffectsFn, ...parameters) {
 
     const tail = tailLogToConsole()
 
@@ -79,10 +79,9 @@ function attachLineInfoOnError(results, file) {
     results.lineText = lineText;
 }
 
+function makeAfterEffectsInterface(userOptions = {}) {
+    options = {...options, ...userOptions}
+    return {executeFunctionInAfterEffects}
+}
 
-module.exports = function () {
-    return executeSync.apply(null, arguments);
-};
-
-module.exports.executeSync = executeSync;
-module.exports.options = options;
+module.exports.makeAfterEffectsInterface = makeAfterEffectsInterface
