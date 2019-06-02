@@ -1,4 +1,4 @@
-.DS_Store
 node_modules
-develop.js
-*.temp.js
+after-effects-generated-script.js
+after-effects-script-results.json
+after-effects-script.log
