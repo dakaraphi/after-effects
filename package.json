@@ -1,6 +1,6 @@
 {
   "name": "after-effects-node",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Define a function in Node, execute function within After Effects process and receive results in Node",
   "main": "index.js",
   "scripts": {},

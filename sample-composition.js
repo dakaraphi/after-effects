@@ -2,7 +2,7 @@ const makeAfterEffectsInterface = require('./index.js').makeAfterEffectsInterfac
 
 // These options will be passed to the after effects process and our function will receive them as a paramter to the function
 const options = {
-    "assetFolder": "C:\\development\\projects\\snackbar\\output",
+    "assetFolder": "C:\\development\\projects\\videos",
     "compositionMain": {
         "name": "render main",
         "layerOverlapSeconds": 2,
